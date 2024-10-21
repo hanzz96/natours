@@ -16,27 +16,45 @@ exports.getAllTours = async (req, res) => {
     // const queryObj = req.query;
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    const { sort, fields } = req.query;
+    const { sort, fields, limit, page } = req.query;
 
     excludedFields.forEach(el => delete queryObj[el]);
 
     //another way to use Tour.find(), simply use await in other variable for filtering page/sort
     let query = Tour.find(queryObj);
 
-    //doSorting
+    //doSorting, prefix "-" will doing sort descending
     if (sort) {
       const sortBy = sort.split(',').join(' ');
       query = query.sort(sortBy);
     } else {
-      query = query.sort('-createdAt');
+      //we got problem when you try paginate, it giving a weird result sometimes a name appear twice in diff page!
+      //note : this is intended in mongoose because your createdAt can be same value, so add more ties to sorting to solve this
+      query = query.sort('-createdAt _id');
     }
 
     //field limiting
-    if(fields){
-      const fieldList = x;
-      query = query.select()
+    if (fields) {
+      const fieldList = fields.split(',').join(' ');
+      query = query.select(fieldList);
+    } else {
+      //removing field "__v" using prefixes "-"
+      query = query.select('-__v');
     }
 
+    //do pagination
+    const pageResult = page * 1 || 1;
+    const limitResult = limit * 1 || 100;
+    const skip = (pageResult - 1) * limitResult;
+    // console.log(skip, 'skip', limitResult, 'limitresult');
+    query = query.skip(skip).limit(limitResult);
+
+    if (page) {
+      //get the total aggregate data
+      const numTours = await Tour.countDocuments();
+      // console.log(numTours, 'numTours');
+      if (skip >= numTours) throw new Error('This page does not exist!');
+    }
     const tours = await query;
 
     // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
