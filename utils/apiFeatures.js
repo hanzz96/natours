@@ -21,7 +21,6 @@ class ApiFeatures {
 
   //doSorting, prefix "-" will doing sort descending
   sort() {
-    //doSorting, prefix "-" will doing sort descending
     if (this.queryString.sort) {
       const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
