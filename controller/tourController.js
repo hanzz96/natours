@@ -1,4 +1,4 @@
-const fs = require('fs');
+// const fs = require('fs');
 const Tour = require('../models/tourModel');
 
 // const tours = JSON.parse(
@@ -7,6 +7,15 @@ const Tour = require('../models/tourModel');
 
 exports.test = (req, res, next) => {
   console.log(`this is test()`);
+  next();
+};
+
+//injecting a query field limit, sort, fields
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = 5;
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  console.log(`middleware of aliasTopTours()`);
   next();
 };
 
