@@ -56,7 +56,7 @@ exports.getAllTours = async (req, res) => {
       if (skip >= numTours) throw new Error('This page does not exist!');
     }
     const tours = await query;
-
+    //
     // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
 
     res.status(200).json({
