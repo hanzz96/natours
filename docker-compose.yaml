@@ -1,0 +1,25 @@
+services:
+  nodeapp:
+    build: .
+    container_name: nodejs_app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb_natours
+    volumes:
+      - ./:/app
+    env_file:
+      - config.env
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/mydatabase
+    command: npm start
+  mongodb_natours:
+    image: mongo:6
+    container_name: mongodb_natours
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
