@@ -55,7 +55,11 @@ const tourSchema = new mongoose.Schema(
       default: Date.now(),
       select: false
     },
-    startDates: [Date]
+    startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false
+    }
   },
   //make virtual output after getting data to showing as a response
   //not working on query ex: tour.find({durationOfWeeks : 1}) <--not working
@@ -86,6 +90,31 @@ tourSchema.pre('save', function(next) {
 
 //after execute save
 // tourSchema.post('save', function(doc, next) {
+//   next();
+// });
+
+//TRIGGER QUERY MIDDLEWARE
+//usecase determine every record to show is only secret, or VIP, so the public data should not show the VIP/secret stuff.
+// tourSchema.pre('find', function(next) {
+//   this.find({ secretTour: { $ne: true } });
+//   next();
+// });
+
+//we can regex too
+tourSchema.pre(/^find/, function(next) {
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+  next();
+});
+
+tourSchema.post(/^find/, function(docs, next) {
+  console.log(`Query took ${Date.now() - this.start} ms`);
+  next();
+});
+
+//alternative to add pre execute findOne methods
+// tourSchema.pre('findOne', function(next) {
+//   this.find({ secretTour: { $ne: true } });
 //   next();
 // });
 
