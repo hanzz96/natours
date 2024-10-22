@@ -148,7 +148,7 @@ exports.getTourStats = async (req, res) => {
       },
       {
         $sort: { avgPrice: 1 }
-      },
+      }
       //example repeat stages
       // {
       //   $match: { _id: { $ne: 'EASY' } }
@@ -166,6 +166,67 @@ exports.getTourStats = async (req, res) => {
       status: 'Failed',
       //its just for now, we will refactor with errorHandling
       message: 'Failed!'
+    });
+  }
+};
+
+exports.getMonthlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+    const plan = await Tour.aggregate([
+      {
+        $unwind: '$startDates'
+      },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`)
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $month: '$startDates'
+          },
+          numTourStarts: { $sum: 1 },
+          tours: { $push: '$name' }
+        }
+      },
+      {
+        //rename field _id into name month
+        $addFields: {
+          month: '$_id'
+        }
+      },
+      {
+        $project: {
+          //no longer shows up
+          _id: 0
+        }
+      },
+      {
+        //-1 shows descending
+        $sort: { numTourStarts: -1 }
+      }
+      //limit to 1 result
+      // {
+      //   $limit: 1
+      // }
+    ]);
+
+    res.status(200).json({
+      status: 'Success',
+      data: {
+        plan
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'Failed',
+      //its just for now, we will refactor with errorHandling
+      message: err
     });
   }
 };
