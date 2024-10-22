@@ -74,6 +74,7 @@ tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
 });
 
+//DOCUMENT MIDDLEWARE
 //mongoose middleware, there are 4 kind middleware
 //document, query, aggregate, document middleware
 // run before .save() and .create() , NOT WORKING ON .insertMany()
@@ -93,7 +94,7 @@ tourSchema.pre('save', function(next) {
 //   next();
 // });
 
-//TRIGGER QUERY MIDDLEWARE
+//QUERY MIDDLEWARE
 //usecase determine every record to show is only secret, or VIP, so the public data should not show the VIP/secret stuff.
 // tourSchema.pre('find', function(next) {
 //   this.find({ secretTour: { $ne: true } });
@@ -117,6 +118,17 @@ tourSchema.post(/^find/, function(docs, next) {
 //   this.find({ secretTour: { $ne: true } });
 //   next();
 // });
+
+//AGGREGATION MIDDLEWARE
+//use case now is , EXCLUDE A SECRET TOUR FROM STATS or any kind API that use aggregate function API mongoose
+
+tourSchema.pre('aggregate', function(next) {
+  //this point on current aggregation
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  console.log(this.pipeline(), 'aggregate');
+
+  next();
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 
