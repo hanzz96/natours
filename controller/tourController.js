@@ -94,6 +94,7 @@ exports.updateTour = async (req, res) => {
   try {
     const tourUpdated = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true, //send updated data document
+      //this is for run the validator in tourModel
       runValidators: true
     });
 
