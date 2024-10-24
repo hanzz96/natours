@@ -14,7 +14,7 @@ class ApiFeatures {
 
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-
+    // console.log(queryStr);
     this.query = this.query.find(JSON.parse(queryStr));
     return this;
   }
@@ -22,6 +22,8 @@ class ApiFeatures {
   //doSorting, prefix "-" will doing sort descending
   sort() {
     if (this.queryString.sort) {
+      //if we have request like sort=price&sort=name <--it will reeturn as array
+      //this is called parameter pollution
       const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
     } else {

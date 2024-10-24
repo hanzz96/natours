@@ -1,5 +1,7 @@
 const express = require('express');
 const tourController = require('../controller/tourController');
+const authController = require('../controller/authController');
+const Role = require('../utils/role');
 
 const router = express.Router();
 //this is middleware for parameter
@@ -23,14 +25,18 @@ router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 
 router
   .route('/')
-  .get(tourController.getAllTours)
+  .get(authController.protect, tourController.getAllTours)
   .post(tourController.createTour);
 
 router
   .route('/:id')
   .get(tourController.getTour)
   // .patch(tourController.updateTour)
-  .delete(tourController.deleteTour);
+  .delete(
+    authController.protect,
+    authController.restrictTo(Role.baseRole.ADMIN, Role.baseRole.LEAD_GUIDE),
+    tourController.deleteTour
+  );
 /**
  * if you put middleware per route method request,
  * only provided (req, res, next) but if you provide `val` it will not triggerd
