@@ -59,6 +59,12 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllUsers = factory.getAll(User);
+exports.getMe = (req, res, next) => {
+  res.status(200).json({
+    status: 'success',
+    data: { user: req.user }
+  });
+};
 exports.getUser = factory.getOne(User);
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);

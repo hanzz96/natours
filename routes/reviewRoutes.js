@@ -11,11 +11,13 @@ const router = express.Router({
 // /api/v1/tours/2fasd2.../reviews POST <-- this is from tourRoutes that mounting to reviewRoute
 // /reviews POST
 
+//from this point sequence it will protected
+router.use(authController.protect);
+
 router
   .route('/')
   .get(reviewController.getAllReviews)
   .post(
-    authController.protect,
     authController.restrictTo(baseRole.USER),
     reviewController.setTourAndUserId,
     reviewController.createReview
@@ -23,8 +25,14 @@ router
 
 router
   .route('/:id')
-  .patch(reviewController.updateReview)
-  .delete(reviewController.deleteReview)
+  .patch(
+    authController.restrictTo(baseRole.USER, baseRole.ADMIN),
+    reviewController.updateReview
+  )
+  .delete(
+    authController.restrictTo(baseRole.USER, baseRole.ADMIN),
+    reviewController.deleteReview
+  )
   .get(reviewController.getReview);
 
 module.exports = router;
