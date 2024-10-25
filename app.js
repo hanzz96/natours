@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -11,8 +12,17 @@ const globalErrorHandler = require('./controller/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
+
+//create server side
+app.set('view engine', 'pug');
+//we dont know server already giving '/' or not , just use this
+app.set('views', path.join(__dirname, 'views'));
+
+//for exposing html things also, serving static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 //========================= setting secure http headers
 app.use(helmet());
@@ -59,9 +69,6 @@ app.use(
   })
 );
 
-//for exposing html things also, serving static files
-app.use(express.static(`${__dirname}/public`));
-
 //express middleware
 //remember, this is sequential, if you put this into bottom of  code, the middleware not executed
 //THIS IS global middleware stacks
@@ -78,6 +85,7 @@ app.use((req, res, next) => {
 // app.patch('/api/v1/tours/:id', updateTour);
 // app.delete('/api/v1/tours/:id', deleteTour);
 
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
