@@ -3,6 +3,7 @@ const Tour = require('../models/tourModel');
 const ApiFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const factory = require('./handlerFactory');
 // const tours = JSON.parse(
 //     fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 // )
@@ -21,87 +22,11 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  const features = new ApiFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-
-  //real execution DB in here, its same like laravel ->get()
-  //this is where before query executed, the query middleware will execute first. see tourModel.js
-  const tours = await features.query;
-  // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
-  // throw new Error('error woi');
-  res.status(200).json({
-    status: 'Success',
-    results: tours.length,
-    data: {
-      tours: tours
-    }
-  });
-});
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  //please see the virtual populate in tourModel
-  const tourData = await Tour.findById(req.params.id).populate('reviews');
-
-  if (!tourData) {
-    return next(new AppError(`No Tour found with that ID`, 404));
-  }
-  // Tour.findOne({_id : req.params.id})
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      tourData
-    }
-  });
-});
-
-exports.createTour = catchAsync(async (req, res, next) => {
-  // console.log(req.body);
-  const newTour = await Tour.create(req.body);
-
-  res.status(201).json({
-    status: 'Success',
-    data: {
-      tour: newTour
-    }
-  });
-});
-
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const tourUpdated = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true, //send updated data document
-    //this is for run the validator in tourModel
-    runValidators: true
-  });
-
-  if (!tourUpdated) {
-    return next(new AppError(`No Tour found with that ID`, 404));
-  }
-
-  res.status(200).json({
-    status: 'Success',
-    message: 'Success updating',
-    data: {
-      tour: tourUpdated
-    }
-  });
-});
-
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-
-  if (!tour) {
-    return next(new AppError(`No Tour found with that ID`, 404));
-  }
-
-  res.status(200).json({
-    status: 'Success',
-    message: 'Delete Success'
-  });
-});
+exports.getAllTours = factory.getAll(Tour);
+exports.getTour = factory.getOne(Tour, { path: 'reviews' });
+exports.createTour = factory.createOne(Tour);
+exports.updateTour = factory.updateOne(Tour);
+exports.deleteTour = factory.deleteOne(Tour);
 
 //aggregation pipeline == regular query
 exports.getTourStats = catchAsync(async (req, res, next) => {
