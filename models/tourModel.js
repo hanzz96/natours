@@ -42,7 +42,8 @@ const tourSchema = new mongoose.Schema(
       default: 4.5,
       //this work with Dates, and Number
       min: [1, 'Rating must be above 1.0'],
-      max: [5, 'Rating must ba below 5.0']
+      max: [5, 'Rating must ba below 5.0'],
+      set: val => Math.round(val * 10) / 10
     },
     ratingsQuantity: {
       type: Number,
@@ -139,6 +140,11 @@ tourSchema.index({
 tourSchema.index({
   slug: 1
 });
+
+tourSchema.index({
+  startLocation: '2dsphere'
+});
+
 tourSchema.virtual('durationWeeks').get(function() {
   //we need "this" keyword, so arrow function not used
   return this.duration / 7;
@@ -176,7 +182,7 @@ tourSchema.pre('save', function(next) {
 // });
 
 //after execute save
-// tourSchema.post('save', function(doc, next) {
+// tourSchema.post('save', function() {
 //   next();
 // });
 
@@ -219,9 +225,11 @@ tourSchema.post(/^find/, function(docs, next) {
 
 tourSchema.pre('aggregate', function(next) {
   //this point on current aggregation
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(this.pipeline(), 'aggregate');
-
+  if (!(this.pipeline().length > 0 && '$geoNear' in this.pipeline()[0])) {
+    this.pipeline().unshift({
+      $match: { secretTour: { $ne: true } }
+    });
+  }
   next();
 });
 
