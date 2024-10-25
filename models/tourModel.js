@@ -124,6 +124,21 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+//this is indexing
+// tourSchema.index({
+//   //sorting price in ascending, -1 is descending
+//   price: 1
+// })
+//compound index
+tourSchema.index({
+  //sorting price in ascending, -1 is descending
+  price: 1,
+  ratingsAverage: -1
+});
+
+tourSchema.index({
+  slug: 1
+});
 tourSchema.virtual('durationWeeks').get(function() {
   //we need "this" keyword, so arrow function not used
   return this.duration / 7;
@@ -134,7 +149,7 @@ tourSchema.virtual('reviews', {
   ref: 'Review',
   foreignField: 'tour',
   localField: '_id'
-})
+});
 
 //DOCUMENT MIDDLEWARE
 //mongoose middleware, there are 4 kind middleware

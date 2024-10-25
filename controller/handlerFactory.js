@@ -90,6 +90,7 @@ exports.getAll = Model =>
 
     //real execution DB in here, its same like laravel ->get()
     //this is where before query executed, the query middleware will execute first. see tourModel.js
+    // const doc = await features.query.explain();
     const doc = await features.query;
     // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
     // throw new Error('error woi');
