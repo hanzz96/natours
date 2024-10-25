@@ -10,6 +10,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controller/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -79,6 +80,7 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 //this is the last part, so any route that not triggered in above tours or users, will be executed in here,
 //REMEMBER THIS IS SEQUENTIAL, IF WE PUT THIS ABOVE IN TOP SEQUENCE, IT WILL ALWAYS EXECUTED

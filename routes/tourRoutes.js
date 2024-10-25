@@ -1,9 +1,15 @@
 const express = require('express');
 const tourController = require('../controller/tourController');
 const authController = require('../controller/authController');
+const reviewRouter = require('../routes/reviewRoutes');
+
 const Role = require('../utils/role');
 
 const router = express.Router();
+
+//mergeParams, because if we specify create review in tour controller it might confusing since we need to maintain 2 route
+router.use('/:tourId/reviews', reviewRouter);
+
 //this is middleware for parameter
 //**important this is can triggering the middleware in bottom */
 /**
