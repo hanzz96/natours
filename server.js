@@ -38,7 +38,7 @@ const server = app.listen(port, () => {
 //just change connection DB to empty string or etc you want to intended error
 process.on('unhandledRejection', err => {
   console.log('UNHANDLER REJECTION! Shutting down...');
-  console.log(err.name, err.message);
+  console.log(err.name, err.message, err.stack);
   server.close(() => {
     process.exit(1);
   });
